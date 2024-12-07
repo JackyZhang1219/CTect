@@ -6,9 +6,15 @@ import json
 import boto3
 # import os
 import base64
-import mysql.connector
-
+import datatier
 textract_client = boto3.client('textract')
+
+rds_endpoint = 'pdfstore-database.c5ggmgyguhw5.us-east-2.rds.amazonaws.com'
+rds_portnum = '3306'
+rds_username = 'admin'
+rds_pwd = 'pdfstoragedatabase'
+rds_dbname = 'pdfstore'
+
 
 def lambda_handler(event, context):
   try:
@@ -32,15 +38,7 @@ def lambda_handler(event, context):
     
     print(extracted_text)
 
-    db_config = {
-          'user': 'admin',
-          'password': 'your_database_password',
-          'host': 'your_rds_endpoint',
-          'database': 'your_database_name'
-    }
-
-    dbConn = mysql.connector.connect(**db_config)
-    dbCursor = dbConn.cursor()
+    dbConn = datatier.get_dbConn(rds_endpoint, rds_portnum, rds_username, rds_pwd, rds_dbname)
 
     insert_query = """
     INSERT INTO jobs (status, originaldatafile, extractedtext)
@@ -48,10 +46,9 @@ def lambda_handler(event, context):
     """
 
 
-    values = ('completed', f"{original_file_name}", extracted_text)
+    values = ['completed', f"{original_file_name}", extracted_text]
 
-    dbCursor.execute(insert_query, values)
-    dbConn.commit()
+    datatier.perform_action(dbConn, insert_query, values)
 
     print("data inserted into table")
 
