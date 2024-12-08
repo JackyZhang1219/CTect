@@ -29,8 +29,8 @@ def lambda_handler(event, context):
 
     db_config = {
         'user': 'admin',
-        'password': 'pdfstoragedatabase',
-        'host': 'pdfstore-database.c5ggmgyguhw5.us-east-2.rds.amazonaws.com',
+        'password': 'pw',
+        'host': 'dbendpoint',
         'database': 'pdfstore'
     }
 

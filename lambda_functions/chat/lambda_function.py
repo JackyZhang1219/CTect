@@ -10,31 +10,37 @@ def lambda_handler(event, context):
     bedrock_client = boto3.client('bedrock-runtime', region_name='us-east-2')
     
     # Get text input from the event
-    input_text = event["text"]
+    prompt = json.loads(event["body"])["prompt"]
     
-    # Define custom prompt
-    custom_prompt = f"""
-    Provide a 50 word summary for the following text, answering whether the class is worth taking:
-    "{input_text}"
-    """
-    
-    model_id = 'amazon.titan-text-lite-v1'
+    model_id = 'us.anthropic.claude-3-5-sonnet-20240620-v1:0'
+
+    native_request = {
+      "anthropic_version": "bedrock-2023-05-31",
+      "max_tokens": 512,
+      "temperature": 0.5,
+      "messages": [
+          {
+              "role": "user",
+              "content": [{"type": "text", "text": prompt}],
+          }
+      ],
+    }
     
     # Invoke the Bedrock model
     response = bedrock_client.invoke_model(
         modelId=model_id,
-        contentType='application/json',
-        accept='application/json',
-        body=json.dumps({"input": custom_prompt})
+        body=json.dumps(native_request)
     )
     
     # Parse the response
     result = json.loads(response['body'].read())
+
+    response = result['content'][0]['text']
     
     # Return the result
     return {
         'statusCode': 200,
-        'body': json.dumps({'result': result})
+        'body': json.dumps({'result': response})
     }
     
   except Exception as err:

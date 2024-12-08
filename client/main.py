@@ -155,8 +155,8 @@ def prompt():
 #
 def upload(baseurl):
   """
-  Prompts the user for a local filename and user id, 
-  and uploads that asset (PDF) to S3 for processing. 
+  Prompts the user for a local filename and classname, uploading
+  to AWS for processing
 
   Parameters
   ----------
@@ -164,7 +164,7 @@ def upload(baseurl):
 
   Returns
   -------
-  nothing
+  extracted text from PDF
   """
 
   try:
@@ -235,6 +235,59 @@ def upload(baseurl):
     logging.error(e)
     return
 
+def getsummary(baseurl):
+  """
+  Prompts the user for classname, performs Sentiment Analysis and submits results to GPT 4o-mini for summary
+
+  Parameters
+  ----------
+  baseurl: baseurl for web service
+
+  Returns
+  -------
+  Sentiment Analysis Score / 10, GPT summary of key reviews
+  """
+
+  try:
+    print("Enter class name in format: 'cs310', with department and class number in all lowercase:")
+    classname = input()
+
+
+    data = {'classname': classname}
+
+    url = baseurl + '/summary'
+    res = requests.post(url, json=data)
+
+    print(res)
+
+    #
+    # let's look at what we got back:
+    #
+    if res.status_code == 200: #success
+      print(res.json())
+    elif res.status_code == 400: # no such user
+      body = res.json()
+      print(body)
+      return
+    else:
+      # failed:
+      print("Failed with status code:", res.status_code)
+      print("url: " + url)
+      if res.status_code == 500:
+        # we'll have an error message
+        body = res.json()
+        print("Error message:", body)
+      #
+      return
+
+    return
+
+  except Exception as e:
+    logging.error("**ERROR: upload() failed:")
+    logging.error("url: " + url)
+    logging.error(e)
+    return
+
 
 ############################################################
 #
@@ -250,7 +303,7 @@ def chat(baseurl):
 
   Returns
   -------
-  nothing
+  Llama3 response to query
   """
 
   try:
@@ -301,9 +354,6 @@ def chat(baseurl):
     logging.error(e)
     return
 
-############################################################
-# main
-#
 try:
   print('** Welcome to CTex **')
   print()
@@ -311,35 +361,7 @@ try:
   # eliminate traceback so we just get error message:
   sys.tracebacklimit = 0
 
-  #
-  # what config file should we use for this session?
-  #
-  # config_file = 'ctex-client-config.ini'
-
-  # print("Config file to use for this session?")
-  # print("Press ENTER to use default, or")
-  # print("enter config file name>")
-  # s = input()
-
-  # if s == "":  # use default
-  #   pass  # already set
-  # else:
-  #   config_file = s
-
-  # #
-  # # does config file exist?
-  # #
-  # if not pathlib.Path(config_file).is_file():
-  #   print("**ERROR: config file '", config_file, "' does not exist, exiting")
-  #   sys.exit(0)
-
-  # #
-  # # setup base URL to web service:
-  # #
-  # configur = ConfigParser()
-  # configur.read(config_file)
-  # baseurl = configur.get('client', 'webservice')
-  baseurl = 'https://4xva6b2e07.execute-api.us-east-2.amazonaws.com/prod'
+  baseurl = 'base'
 
   #
   # make sure baseurl does not end with /, if so remove:
@@ -369,7 +391,7 @@ try:
     if cmd == 1:
       upload(baseurl)
     elif cmd == 2:
-        pass
+        getsummary(baseurl)
     elif cmd == 3:
       chat(baseurl)
     else:

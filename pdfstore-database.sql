@@ -8,9 +8,8 @@ CREATE TABLE jobs
 (
     jobid             int not null AUTO_INCREMENT,
     status            varchar(256) not null,  -- uploaded, completed, error, processing...
-    originaldatafile  varchar(256) not null,  -- original PDF filename from user
+    classname  varchar(256) not null,  -- original PDF filename from user
     extractedtext     text, 
-    averagerating     float default -1,
     PRIMARY KEY (jobid)
 );
 
@@ -23,9 +22,9 @@ DROP USER IF EXISTS 'pdfstore-read-write';
 CREATE USER 'pdfstore-read-only' IDENTIFIED BY 'abc123!!';
 CREATE USER 'pdfstore-read-write' IDENTIFIED BY 'def456!!';
 
-GRANT SELECT, SHOW VIEW ON benfordapp.* 
+GRANT SELECT, SHOW VIEW ON pdfstore.* 
       TO 'pdfstore-read-only';
-GRANT SELECT, SHOW VIEW, INSERT, UPDATE, DELETE, DROP, CREATE, ALTER ON benfordapp.* 
+GRANT SELECT, SHOW VIEW, INSERT, UPDATE, DELETE, DROP, CREATE, ALTER ON pdfstore.* 
       TO 'pdfstore-read-write';
       
 FLUSH PRIVILEGES;
@@ -33,6 +32,3 @@ FLUSH PRIVILEGES;
 --
 -- done
 --
-
-INSERT INTO jobs(jobid, status, originaldatafile, extractedtext)
-      values(1001, 'completed', 'cs310', "this class is really bad, it's genuinely horrible")
