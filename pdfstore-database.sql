@@ -10,7 +10,7 @@ CREATE TABLE jobs
     status            varchar(256) not null,  -- uploaded, completed, error, processing...
     originaldatafile  varchar(256) not null,  -- original PDF filename from user
     extractedtext     text, 
-    averagerating     float not null default -1,
+    averagerating     float default -1,
     PRIMARY KEY (jobid)
 );
 

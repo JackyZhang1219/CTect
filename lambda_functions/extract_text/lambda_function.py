@@ -1,29 +1,18 @@
-#
-# Python program to allow user to upload pdf and parse pdf
-#
-
 import json
 import boto3
-# import os
 import base64
-import datatier
+import pymysql
+
 textract_client = boto3.client('textract')
-
-rds_endpoint = 'pdfstore-database.c5ggmgyguhw5.us-east-2.rds.amazonaws.com'
-rds_portnum = '3306'
-rds_username = 'admin'
-rds_pwd = 'pdfstoragedatabase'
-rds_dbname = 'pdfstore'
-
 
 def lambda_handler(event, context):
   try:
     print("**STARTING**")
     print("**lambda: extract_text**")
-
-    original_file_name = "FILL THIS WITH CODE TO GET THE FILENAME FROM USER INPUT"
     body = json.loads(event['body'])
-    file_content = base64.b64decode(body['file'])
+    original_file_name = body["filename"]
+    classname = body['classname']
+    file_content = base64.b64decode(body['data'])
 
     response = textract_client.detect_document_text(
         Document={
@@ -38,17 +27,25 @@ def lambda_handler(event, context):
     
     print(extracted_text)
 
-    dbConn = datatier.get_dbConn(rds_endpoint, rds_portnum, rds_username, rds_pwd, rds_dbname)
+    db_config = {
+        'user': 'admin',
+        'password': 'pdfstoragedatabase',
+        'host': 'pdfstore-database.c5ggmgyguhw5.us-east-2.rds.amazonaws.com',
+        'database': 'pdfstore'
+    }
+
+    dbConn = pymysql.connect(**db_config)
+    dbCursor = dbConn.cursor()
 
     insert_query = """
-    INSERT INTO jobs (status, originaldatafile, extractedtext)
+    INSERT INTO jobs (status, classname, extractedtext)
     VALUES (%s, %s, %s)
     """
 
+    values = ('completed', f"{classname}", extracted_text)
 
-    values = ['completed', f"{original_file_name}", extracted_text]
-
-    datatier.perform_action(dbConn, insert_query, values)
+    dbCursor.execute(insert_query, values)
+    dbConn.commit()
 
     print("data inserted into table")
 

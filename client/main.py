@@ -274,12 +274,15 @@ def upload(baseurl):
     # the string as JSON for upload to server:
     #
     
+    print("Enter class name in format: 'cs310', with department and class number in all lowercase:")
+    classname = input()
+
     datastr = ""
     
     data = base64.b64encode(bytes)
     datastr = data.decode('utf-8')
 
-    data = {"filename": local_filename, "data": datastr}
+    data = {"filename": local_filename, "data": datastr, 'classname': classname}
 
     #
     # call the web service:
@@ -390,31 +393,32 @@ try:
   #
   # what config file should we use for this session?
   #
-  config_file = 'ctex-client-config.ini'
+  # config_file = 'ctex-client-config.ini'
 
-  print("Config file to use for this session?")
-  print("Press ENTER to use default, or")
-  print("enter config file name>")
-  s = input()
+  # print("Config file to use for this session?")
+  # print("Press ENTER to use default, or")
+  # print("enter config file name>")
+  # s = input()
 
-  if s == "":  # use default
-    pass  # already set
-  else:
-    config_file = s
+  # if s == "":  # use default
+  #   pass  # already set
+  # else:
+  #   config_file = s
 
-  #
-  # does config file exist?
-  #
-  if not pathlib.Path(config_file).is_file():
-    print("**ERROR: config file '", config_file, "' does not exist, exiting")
-    sys.exit(0)
+  # #
+  # # does config file exist?
+  # #
+  # if not pathlib.Path(config_file).is_file():
+  #   print("**ERROR: config file '", config_file, "' does not exist, exiting")
+  #   sys.exit(0)
 
-  #
-  # setup base URL to web service:
-  #
-  configur = ConfigParser()
-  configur.read(config_file)
-  baseurl = configur.get('client', 'webservice')
+  # #
+  # # setup base URL to web service:
+  # #
+  # configur = ConfigParser()
+  # configur.read(config_file)
+  # baseurl = configur.get('client', 'webservice')
+  baseurl = 'https://4xva6b2e07.execute-api.us-east-2.amazonaws.com/prod'
 
   #
   # make sure baseurl does not end with /, if so remove:
