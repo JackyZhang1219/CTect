@@ -318,6 +318,66 @@ def upload(baseurl):
 
 
 ############################################################
+#
+# chat
+#
+def chat(baseurl):
+  """
+  Prompts the user for a question and makes a call to Llama3 for an answer
+
+  Parameters
+  ----------
+  baseurl: baseurl for web service
+
+  Returns
+  -------
+  nothing
+  """
+
+  try:
+    print("Enter your question:")
+    prompt = input()
+
+    data = {"prompt": prompt}
+
+    #
+    # call the web service:
+    #
+    url = baseurl + '/chat'
+    res = requests.post(url, json=data)
+
+    print("\n")
+
+    #
+    # let's look at what we got back:
+    #
+    if res.status_code == 200: #success
+      body = res.json()
+      print(body['result'])
+    elif res.status_code == 400:
+      body = res.json()
+      print(body)
+      return
+    else:
+      # failed:
+      print("Failed with status code:", res.status_code)
+      print("url: " + url)
+      if res.status_code == 500:
+        # we'll have an error message
+        body = res.json()
+        print("Error message:", body)
+      #
+      return
+
+    return
+
+  except Exception as e:
+    logging.error("**ERROR: chat() failed:")
+    logging.error("url: " + url)
+    logging.error(e)
+    return
+
+############################################################
 # main
 #
 try:
@@ -389,7 +449,7 @@ try:
     elif cmd == 3:
         pass
     elif cmd == 4:
-        pass
+      chat(baseurl)
     else:
       print("** Unknown command, try again...")
     #
