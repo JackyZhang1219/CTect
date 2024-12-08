@@ -14,13 +14,9 @@
 #
 
 import requests
-import jsons
-
-import uuid
 import pathlib
 import logging
 import sys
-import os
 import base64
 import time
 
@@ -132,10 +128,9 @@ def prompt():
     print()
     print(">> Enter a command:")
     print("   0 => end")
-    print("   1 => list uploaded pdfs")
-    print("   2 => upload pdf")
-    print("   3 => get analysis of pdf")
-    print("   4 => chat")
+    print("   1 => upload pdf")
+    print("   2 => get analysis of pdf")
+    print("   3 => chat")
 
     cmd = input()
 
@@ -153,85 +148,6 @@ def prompt():
     print("**ERROR: invalid input")
     print("**ERROR")
     return -1
-
-
-############################################################
-# #
-# # jobs
-# #
-# def jobs(baseurl):
-#   """
-#   Prints out all the jobs in the database
-
-#   Parameters
-#   ----------
-#   baseurl: baseurl for web service
-
-#   Returns
-#   -------
-#   nothing
-#   """
-
-#   try:
-#     #
-#     # call the web service:
-#     #
-#     api = '/jobs'
-#     url = baseurl + api
-
-#     # res = requests.get(url)
-#     res = web_service_get(url)
-
-#     #
-#     # let's look at what we got back:
-#     #
-#     if res.status_code == 200: #success
-#       pass
-#     else:
-#       # failed:
-#       print("Failed with status code:", res.status_code)
-#       print("url: " + url)
-#       if res.status_code == 500:
-#         # we'll have an error message
-#         body = res.json()
-#         print("Error message:", body)
-#       #
-#       return
-
-#     #
-#     # deserialize and extract jobs:
-#     #
-#     body = res.json()
-#     #
-#     # let's map each row into an Job object:
-#     #
-#     jobs = []
-#     for row in body:
-#       job = Job(row)
-#       jobs.append(job)
-#     #
-#     # Now we can think OOP:
-#     #
-#     if len(jobs) == 0:
-#       print("no jobs...")
-#       return
-
-#     for job in jobs:
-#       print(job.jobid)
-#       print(" ", job.userid)
-#       print(" ", job.status)
-#       print(" ", job.originaldatafile)
-#       print(" ", job.datafilekey)
-#       print(" ", job.resultsfilekey)
-#     #
-#     return
-
-#   except Exception as e:
-#     logging.error("**ERROR: jobs() failed:")
-#     logging.error("url: " + url)
-#     logging.error(e)
-#     return
-
 
 ############################################################
 #
@@ -450,14 +366,11 @@ try:
   cmd = prompt()
 
   while cmd != 0:
-    #
     if cmd == 1:
-      jobs(baseurl)
-    elif cmd == 2:
       upload(baseurl)
-    elif cmd == 3:
+    elif cmd == 2:
         pass
-    elif cmd == 4:
+    elif cmd == 3:
       chat(baseurl)
     else:
       print("** Unknown command, try again...")
