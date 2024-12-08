@@ -338,39 +338,44 @@ def chat(baseurl):
   """
 
   try:
-    print("Enter your question:")
+    print("Starting the chat: you can ask general questions related to class selection or career advice. (type q to quit):")
     prompt = input()
 
-    data = {"prompt": prompt}
+    while (prompt != "q"):
 
-    #
-    # call the web service:
-    #
-    url = baseurl + '/chat'
-    res = requests.post(url, json=data)
+      data = {"prompt": prompt}
 
-    print("\n")
-
-    #
-    # let's look at what we got back:
-    #
-    if res.status_code == 200: #success
-      body = res.json()
-      print(body['result'])
-    elif res.status_code == 400:
-      body = res.json()
-      print(body)
-      return
-    else:
-      # failed:
-      print("Failed with status code:", res.status_code)
-      print("url: " + url)
-      if res.status_code == 500:
-        # we'll have an error message
-        body = res.json()
-        print("Error message:", body)
       #
-      return
+      # call the web service:
+      #
+      url = baseurl + '/chat'
+      res = requests.post(url, json=data)
+
+      print("\n")
+
+      #
+      # let's look at what we got back:
+      #
+      if res.status_code == 200: #success
+        body = res.json()
+        print(body['result'])
+
+        print("\nYou can continue asking questions. Type q to quit.")
+        prompt = input()
+      elif res.status_code == 400:
+        body = res.json()
+        print(body)
+        return
+      else:
+        # failed:
+        print("Failed with status code:", res.status_code)
+        print("url: " + url)
+        if res.status_code == 500:
+          # we'll have an error message
+          body = res.json()
+          print("Error message:", body)
+        #
+        return
 
     return
 
